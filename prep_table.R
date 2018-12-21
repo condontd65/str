@@ -1,9 +1,9 @@
 #library(googlesheets)
 library(tidyverse)
-library(stringr)
+#library(stringr)
 library(dplyr)
 library(data.table)
-library(DescTools)
+#library(DescTools)
 library(tidyr)
 library(xlsx)
 
@@ -133,4 +133,32 @@ colnames(dnd.geo4.good.rdy) <- c('Project: Project Name', 'Project Unit: Unit_Na
 # Bind with dnd.address.geo masterlist
 dnd.address.geo <- rbind(dnd.address.geo, dnd.geo4.good.rdy)
 write.xlsx(dnd.address.geo, "DND_Monitored_Ownership_Units_for_STR_SAMID.xlsx", row.names = FALSE)
+
+# Make up the unmatched records to attach
+dnd.geo4.bad <- subset(dnd.geo4, dnd.geo4$Score < 50)
+
+dnd.geo4.bad.rdy <- data.table(dnd.geo4.bad$Project__Project_Name, 
+                                dnd.geo4.bad$Project_Unit__Unit_Name,
+                                dnd.geo4.bad$Unit_Street__,
+                                dnd.geo4.bad$Unit_Street_Name,
+                                dnd.geo4.bad$Unit__,
+                                dnd.geo4.bad$Unit_ZIP,
+                                dnd.geo4.bad$Parcel_Info,
+                                dnd.geo4.bad$Ownership_Units,
+                                dnd.geo4.bad$Subtotal_Restricted_Units__fm_Prjt_,
+                                dnd.geo4.bad$Ref_ID,
+                                dnd.geo4.bad$Address1)
+colnames(dnd.geo4.bad.rdy) <- c('Project: Project Name', 'Project Unit: Unit_Name',
+                                 'Unit Street #', 'Unit Street Name', 'Unit #', 'Unit ZIP',
+                                 'Parcel Info', 'Ownership Units', 'Subtotal Restricted Units (fm_Prjt)',
+                                 'SAM ID', 'Address')
+dnd.geo4.bad.rdy$`SAM ID` <- NA
+
+# Bind with dnd.address.geo masterlist
+dnd.address.geo.all <- rbind(dnd.address.geo, dnd.geo4.bad.rdy)
+write.xlsx(dnd.address.geo.all, "DND_Monitored_Ownership_Units_for_STR_SAMID.xlsx", row.names = FALSE)
+
+
+
+
 
