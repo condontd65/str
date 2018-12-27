@@ -16,7 +16,7 @@ gs_auth(new_user = TRUE)
 gs_ls()
 available <- gs_ls()
 
-# Read in the art extracted spreadsheet
+# Read in the str bpda spreadsheet
 str.connect <- gs_title("BPDA restricted condos 2018_12_21")
 bpda <- gs_read(str.connect)
 
@@ -117,7 +117,7 @@ bpda.run1.units <- bpda.run1.units[1:1053, 1:18]
 bpda.run1.units.good <- subset(bpda.run1.units, bpda.run1.units$Match.Score > 4)
 bpda.run1.units.bad <- subset(bpda.run1.units, bpda.run1.units$Match.Score == 0)
 
-# good
+# Good
 
 bpda.address.units.good <- data.table(bpda.run1.units.good$Street..,
                                     bpda.run1.units.good$Street.Name,
@@ -130,7 +130,7 @@ colnames(bpda.address.units.good) <- c('Street #', 'Street Name',
                                      'Street suffix', 'Unit #', 'ZIP', 'SAM ID',
                                      'Address')
 
-# bad
+# Bad
 
 bpda.address.units.bad <- data.table(bpda.run1.units.bad$Street..,
                                       bpda.run1.units.bad$Street.Name,
@@ -143,11 +143,73 @@ colnames(bpda.address.units.bad) <- c('Street #', 'Street Name',
                                        'Street suffix', 'Unit #', 'ZIP', 'SAM ID',
                                        'Address')
 
-# make sam id na for bad
+# Make sam id na for bad
 bpda.address.units.bad$`SAM ID` <- NA
 
 # rbind them together
-bpda.units <- rbind(bpda.address.units.good, bpda.address.units.bad)
+#bpda.units <- rbind(bpda.address.units.good, bpda.address.units.bad)
+write.csv(bpda.units, "BPDA_restricted_condos_2018_12_21_SAMID_units.csv", row.names = FALSE)
+
+
+# Units run 2
+bpda.run2.units <- read.csv("bpda_run2_units_included.csv")
+bpda.run2.units <- bpda.run2.units[, 1:18]
+bpda.run2.units.good <- subset(bpda.run2.units, bpda.run2.units$Match.Score > 4)
+bpda.run2.units.bad <- subset(bpda.run2.units, bpda.run2.units$Match.Score == 0)
+
+# Good
+
+bpda.address.units.good2 <- data.table(bpda.run2.units.good$Street..,
+                                      bpda.run2.units.good$Street.Name,
+                                      bpda.run2.units.good$Street.suffix,
+                                      bpda.run2.units.good$Unit..,
+                                      bpda.run2.units.good$ZIP,
+                                      bpda.run2.units.good$Match.Id,
+                                      bpda.run2.units.good$Address)
+colnames(bpda.address.units.good2) <- c('Street #', 'Street Name',
+                                       'Street suffix', 'Unit #', 'ZIP', 'SAM ID',
+                                       'Address')
+
+# Bind the good data. Add in the bad data after one more run.
+bpda.units <- rbind(bpda.address.units.good, bpda.address.units.good2)
+
+
+# Run 3
+
+bpda.run3.units <- read.csv("bpda_run3_units_included.csv")
+bpda.run3.units <- bpda.run3.units[, 1:23]
+bpda.run3.units.good <- subset(bpda.run3.units, bpda.run3.units$Score > 50)
+bpda.run3.units.bad <- subset(bpda.run3.units, bpda.run3.units$Score < 50)
+
+bpda.address.units.good3 <- data.table(bpda.run3.units.good$Street__,
+                                bpda.run3.units.good$Street_Name,
+                                bpda.run3.units.good$Street_suffix,
+                                bpda.run3.units.good$Unit__,
+                                bpda.run3.units.good$ZIP_1,
+                                bpda.run3.units.good$Ref_ID,
+                                bpda.run3.units.good$Address_Text)
+colnames(bpda.address.units.good3) <- c('Street #', 'Street Name',
+                                 'Street suffix', 'Unit #', 'ZIP', 'SAM ID',
+                                 'Address')
+bpda.address.units.bad3 <- data.table(bpda.run3.units.bad$Street__,
+                                       bpda.run3.units.bad$Street_Name,
+                                       bpda.run3.units.bad$Street_suffix,
+                                       bpda.run3.units.bad$Unit__,
+                                       bpda.run3.units.bad$ZIP_1,
+                                       bpda.run3.units.bad$Ref_ID,
+                                       bpda.run3.units.bad$Address_Text)
+colnames(bpda.address.units.bad3) <- c('Street #', 'Street Name',
+                                        'Street suffix', 'Unit #', 'ZIP', 'SAM ID',
+                                        'Address')
+bpda.address.units.bad3$`SAM ID` <- NA
+
+# Bind them all together
+bpda.units.final <- rbind(bpda.units, bpda.address.units.good3, bpda.address.units.bad3)
+write.xlsx(bpda.units.final, "BPDA_restricted_condos_2018_12_21_SAMID_allunits.xlsx", row.names = FALSE)
+
+
+
+
 
 
 
